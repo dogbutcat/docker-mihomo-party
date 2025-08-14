@@ -1,0 +1,25 @@
+[Configuration]
+CommandLoginShell=FALSE
+FontName=Monospace 10
+MiscAlwaysShowTabs=FALSE
+MiscBell=FALSE
+MiscBidiSupportPerCell=TRUE
+MiscDefaultGeometry=80x24
+MiscInheritGeometry=FALSE
+MiscMenubarDefault=TRUE
+MiscMouseAutohide=FALSE
+MiscRewrapOnResize=TRUE
+MiscScrollAlternateScreen=TRUE
+MiscScrollOnOutput=FALSE
+MiscScrollOnKey=TRUE
+MiscShowRelaunchDialog=TRUE
+MiscShowUnsafePasteDialog=TRUE
+MiscSlimTabs=FALSE
+MiscTabCloseButtons=TRUE
+MiscTabCloseMiddleClick=TRUE
+MiscTabPosition=GTK_POS_TOP
+MiscHighlightUrls=TRUE
+MiscMiddleClickOpensUri=FALSE
+MiscCopyOnSelect=FALSE
+MiscRightClickAction=TERMINAL_RIGHT_CLICK_ACTION_CONTEXT_MENU
+ScrollingBar=TERMINAL_SCROLLBAR_RIGHT

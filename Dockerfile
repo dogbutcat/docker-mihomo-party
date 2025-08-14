@@ -1,0 +1,65 @@
+FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm
+
+# 设置环境变量
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 更新包列表并安装 XFCE 桌面环境
+RUN apt-get update && \
+    apt-get install -y \
+    xfce4 \
+    xfce4-terminal \
+    firefox-esr \
+    dbus-x11 \
+    # sudo \
+    # curl \
+    wget \
+    vim 
+
+RUN apt-get install -y \
+    fonts-wqy-microhei \
+    fonts-wqy-zenhei 
+    # fonts-noto-cjk \
+    # locales \
+    # fcitx5 \
+    # fcitx5-chinese-addons \
+    # fcitx5-frontend-gtk3 \
+    # fcitx5-frontend-qt5
+
+ENV LC_ALL=en_US.UTF-8
+# 配置中文语言环境
+# RUN sed -i 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen && \
+#     locale-gen zh_CN.UTF-8
+
+# RUN apt-get install -y \
+#     iproute2 \
+#     iptables
+
+# Additional deps for clash-verge
+# RUN apt-get install -y libwebkit2gtk-4.0-37 libjavascriptcoregtk-4.0-18 libayatana-appindicator3-1
+
+ARG VERSION
+ENV ARCH=amd64
+
+# get Mihomo Party from git repo
+RUN wget -q -O - https://github.com/mihomo-party-org/mihomo-party/releases/download/v${VERSION}/mihomo-party-linux-${VERSION}-${ARCH}.deb -O /tmp/mihomo-party-linux-${VERSION}-${ARCH}.deb
+
+COPY root /
+COPY .Xauthority /config/.Xauthority
+
+RUN chmod 644 /etc/xdg/autostart/mihomo-party.desktop
+
+# Install Mihomo Party.
+RUN apt install -y /tmp/mihomo-party-linux-${VERSION}-${ARCH}.deb
+
+# 创建 Mihomo Party 数据目录并设置为 VOLUME
+RUN mkdir -p /mihomo-data
+VOLUME "/mihomo-data"
+
+RUN apt-get purge -y upower \
+    xfce4-power-manager-data \
+    && apt-get clean
+
+# 暴露端口（继承自基础镜像）
+EXPOSE 3000
+
+ENV HOME=/config

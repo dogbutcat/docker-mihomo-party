@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# 创建 TUN 设备（如果不存在且有权限）
+if [ ! -c /dev/net/tun ] && [ -w /dev ]; then
+    mkdir -p /dev/net
+    mknod /dev/net/tun c 10 200
+    chmod 666 /dev/net/tun
+    echo "Created /dev/net/tun device"
+fi
+
+# 检查 TUN 设备是否可用
+if [ -c /dev/net/tun ]; then
+    echo "TUN device is available"
+else
+    echo "Warning: TUN device not available. Make sure to run with --device=/dev/net/tun:/dev/net/tun"
+fi

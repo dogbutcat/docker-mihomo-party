@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+HOME=${HOME:-/config}
+
+# Add proot-apps
+if [ ! -f "${HOME}/.local/bin/proot-apps" ]; then
+  mkdir -p ${HOME}/.local/bin/
+  cp /proot-apps/* ${HOME}/.local/bin/
+  echo 'export PATH="$HOME/.local/bin:$PATH"' >> $HOME/.bashrc
+elif ! diff -q /proot-apps/pversion ${HOME}/.local/bin/pversion > /dev/null; then
+  cp /proot-apps/* ${HOME}/.local/bin/
+fi

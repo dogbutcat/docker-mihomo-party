@@ -1,0 +1,365 @@
+#DNS分流部分
+port: 7890
+socks-port: 7891
+allow-lan: true
+bind-address: '*'
+mode: rule
+log-level: info
+external-controller: '127.0.0.1:9090'
+unified-delay: true
+# find-process-mode: strict # always/strict/off
+# tcp-concurrent: true
+# global-client-fingerprint: chrome
+
+# standard：标准加载器/memconservative：专为内存受限 (小内存) 设备优化的加载器 (默认值)
+geodata-loader: standard
+# mmdb 或者 dat，可选 true/false,true为 dat 默认false
+geodata-mode: false
+geox-url:
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
+  asn: "https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
+geo-auto-update: false
+geo-update-interval: 24
+
+etag-support: true
+global-ua: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+sniffer:
+  sniff:
+    TLS: {ports: [1-65535], override-destination: true}
+    HTTP: {ports: [1-65535], override-destination: true}
+  enable: true
+  skip-domain:
+    - Mijia Cloud
+    - dlg.io.mi.com
+  parse-pure-ip: false
+  force-dns-mapping: true
+  override-destination: true
+dns:
+  ipv6: false
+  enable: true
+  listen: 0.0.0.0:1053
+  use-hosts: false
+  default-nameserver:
+    - system
+    - 119.28.28.28
+    - 119.29.29.29
+    - 223.5.5.5
+    - 223.6.6.6
+  nameserver:
+    - system
+    - 119.29.29.29
+    - 223.5.5.5
+    - tls://dot.pub:853
+    - tls://dns.alidns.com:853
+    - https://doh.pub:443/dns-query
+    - https://dns.alidns.com:443/dns-query
+  fake-ip-range: 198.18.0.1/15
+  fake-ip-filter:
+    - "*.lan"
+    - "*.localdomain"
+    - "*.example"
+    - "*.invalid"
+    - "*.localhost"
+    - "*.test"
+    - "*.local"
+    - "*.home.arpa"
+    - time.*.com
+    - time.*.gov
+    - time.*.edu.cn
+    - time.*.apple.com
+    - time1.*.com
+    - time2.*.com
+    - time3.*.com
+    - time4.*.com
+    - time5.*.com
+    - time6.*.com
+    - time7.*.com
+    - ntp.*.com
+    - ntp1.*.com
+    - ntp2.*.com
+    - ntp3.*.com
+    - ntp4.*.com
+    - ntp5.*.com
+    - ntp6.*.com
+    - ntp7.*.com
+    - "*.time.edu.cn"
+    - "*.ntp.org.cn"
+    - +.pool.ntp.org
+    - time1.cloud.tencent.com
+    - stun.*.*
+    - stun.*.*.*
+    - swscan.apple.com
+    - mesu.apple.com
+    - music.163.com
+    - "*.music.163.com"
+    - "*.126.net"
+    - musicapi.taihe.com
+    - music.taihe.com
+    - songsearch.kugou.com
+    - trackercdn.kugou.com
+    - "*.kuwo.cn"
+    - api-jooxtt.sanook.com
+    - api.joox.com
+    - y.qq.com
+    - "*.y.qq.com"
+    - streamoc.music.tc.qq.com
+    - mobileoc.music.tc.qq.com
+    - isure.stream.qqmusic.qq.com
+    - dl.stream.qqmusic.qq.com
+    - aqqmusic.tc.qq.com
+    - amobile.music.tc.qq.com
+    - localhost.ptlogin2.qq.com
+    - "*.msftconnecttest.com"
+    - "*.msftncsi.com"
+    - "*.xiami.com"
+    - "*.music.migu.cn"
+    - music.migu.cn
+    - +.wotgame.cn
+    - +.wggames.cn
+    - +.wowsgame.cn
+    - +.wargaming.net
+    - "*.*.*.srv.nintendo.net"
+    - "*.*.stun.playstation.net"
+    - xbox.*.*.microsoft.com
+    - "*.*.xboxlive.com"
+    - "*.ipv6.microsoft.com"
+    - teredo.*.*.*
+    - teredo.*.*
+    - speedtest.cros.wr.pvp.net
+    - +.jjvip8.com
+    - www.douyu.com
+    - activityapi.huya.com
+    - activityapi.huya.com.w.cdngslb.com
+    - www.bilibili.com
+    - api.bilibili.com
+    - a.w.bilicdn1.com
+
+x-pg-common: &pg-common
+    url: http://www.gstatic.com/generate_204
+    type: select
+    proxies:
+      - Proxies
+      - 🎯Direct
+
+#策略组
+proxy-groups:
+  - name: Proxies
+    icon: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Proxy.png
+    <<: *pg-common
+    proxies:
+      - DIRECT
+  # - name: Netflix
+  #   icon: https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/Netflix.png
+  #   <<: *pg-common
+  # - name: HBO
+  #   icon: https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/HBO Max.png
+  #   <<: *pg-common
+  # - name: DisneyPlus
+  #   icon: https://www.naiixi.com/DisneyPlus.png
+  #   <<: *pg-common
+  - name: PikPak
+    icon: https://mypikpak.com/favicon-32x32.png
+    <<: *pg-common
+  - name: YouTube
+    icon: https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/YouTube.png
+    <<: *pg-common
+  - name: Bahamut
+    icon: https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/Bahamut.png
+    <<: *pg-common
+  - name: Bilibili
+    icon: https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/Bilibili.png
+    <<: *pg-common
+  - name: GameDownload
+    icon: https://raw.githubusercontent.com/Koolson/Qure/refs/heads/master/IconSet/Color/Game.png
+    <<: *pg-common
+  - name: Game
+    icon: https://raw.githubusercontent.com/Koolson/Qure/refs/heads/master/IconSet/Color/Game.png
+    <<: *pg-common
+  - name: MyTVSuper
+    icon: https://www.naiixi.com/images/myTVSUPER.png
+    <<: *pg-common
+  - name: AI
+    icon: https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Qure/ChatGPT.png
+    <<: *pg-common
+  - name: Telegram
+    icon: https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/Telegram.png
+    <<: *pg-common
+  - name: Steam
+    icon: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/color/steam.png
+    <<: *pg-common
+  - name: Epic
+    icon: https://www.naiixi.com/Epic.png
+    <<: *pg-common
+  - name: Xbox
+    icon: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Xbox.png
+    <<: *pg-common
+  # - name: PlayStation
+  #   icon: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/PlayStation_1.png
+  #   <<: *pg-common
+  - name: Microsoft
+    icon: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Microsoft.png
+    <<: *pg-common
+  - name: Apple
+    icon: https://raw.githubusercontent.com/HotKids/Rules/master/Quantumult/X/Images/Icons/Apple.png
+    <<: *pg-common
+  - name: Google
+    icon: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/color/google.png
+    <<: *pg-common
+  - name: Tiktok
+    icon: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/TikTok_1.png
+    <<: *pg-common
+  - name: RegionControl
+    icon: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Lock.png
+    <<: *pg-common
+
+  - name: 🎯Direct
+    icon: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Direct.png
+    <<: *pg-common
+    proxies:
+      - DIRECT
+      - Proxies
+
+  - name: ✈️Final
+    icon: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Final.png
+    <<: *pg-common
+
+
+rule-providers:
+  reject:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt"
+    path: ./ruleset/reject.yaml
+    interval: 86400
+
+  # icloud:
+  #   type: http
+  #   behavior: domain
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/icloud.txt"
+  #   path: ./ruleset/icloud.yaml
+  #   interval: 86400
+
+  apple:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/apple.txt"
+    path: ./ruleset/apple.yaml
+    interval: 86400
+
+  # google:
+  #   type: http
+  #   behavior: domain
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/google.txt"
+  #   path: ./ruleset/google.yaml
+  #   interval: 86400
+  # proxy:
+  #   type: http
+  #   behavior: domain
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/proxy.txt"
+  #   path: ./ruleset/proxy.yaml
+  #   interval: 86400
+  # direct:
+  #   type: http
+  #   behavior: domain
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/direct.txt"
+  #   path: ./ruleset/direct.yaml
+  #   interval: 86400
+  # private:
+  #   type: http
+  #   behavior: domain
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/private.txt"
+  #   path: ./ruleset/private.yaml
+  #   interval: 86400
+  # gfw:
+  #   type: http
+  #   behavior: domain
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/gfw.txt"
+  #   path: ./ruleset/gfw.yaml
+  #   interval: 86400
+  # tld-not-cn:
+  #   type: http
+  #   behavior: domain
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/tld-not-cn.txt"
+  #   path: ./ruleset/tld-not-cn.yaml
+  #   interval: 86400
+  # telegramcidr:
+  #   type: http
+  #   behavior: ipcidr
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/telegramcidr.txt"
+  #   path: ./ruleset/telegramcidr.yaml
+  #   interval: 86400
+  # telegram:
+  #   type: file
+  #   behavior: domain
+  #   path: ./ruleset/telegram.yaml
+  #   interval: 86400
+  # cncidr:
+  #   type: http
+  #   behavior: ipcidr
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/cncidr.txt"
+  #   path: ./ruleset/cncidr.yaml
+  #   interval: 86400
+  # lancidr:
+  #   type: http
+  #   behavior: ipcidr
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txt"
+  #   path: ./ruleset/lancidr.yaml
+  #   interval: 86400
+  # applications:
+  #   type: http
+  #   behavior: classical
+  #   url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/applications.txt"
+  #   path: ./ruleset/applications.yaml
+  #   interval: 86400
+
+#指定分流规则所使用的策略组
+rules:
+# you can place rules here
+  - RULE-SET,reject,REJECT
+  - GEOSITE,category-ads-all,REJECT
+
+  - GEOIP,LAN,🎯Direct
+  - GEOIP,private,🎯Direct
+  # - RULE-SET,private,🎯Direct
+
+  - GEOSITE,bilibili,Bilibili
+  - GEOSITE,bahamut,Bahamut
+  # - RULE-SET,applications,🎯Direct
+
+  - GEOIP,CN,🎯Direct,no-resolve
+
+
+  - GEOSITE,category-games-cn,🎯Direct
+
+  - GEOSITE,icloud,Apple
+  - RULE-SET,apple,Apple
+
+
+  - GEOSITE,google,Google
+  - GEOSITE,youtube,YouTube
+
+  - GEOSITE,steam,Steam
+  - GEOSITE,epicgames,Epic
+  - GEOSITE,xbox,Xbox
+  - GEOSITE,category-games-!cn,Game
+
+  # - RULE-SET,crypto,Crypto
+  - GEOSITE,openai,AI
+
+  # - RULE-SET,telegram,Telegram
+  # - RULE-SET,telegramcidr,Telegram,no-resolve
+  - GEOIP,telegram,Telegram,no-resolve
+  - GEOSITE,telegram,Telegram
+
+  - GEOSITE,geolocation-!cn@cn,🎯Direct # DIRECT 为直连分组，可以改为你自己的分组
+  - GEOSITE,geolocation-!cn,Proxies # PROXY 为代理分组，可以改为你自己的分组
+  - GEOSITE,geolocation-cn@!cn,Proxies
+  - GEOSITE,geolocation-cn,🎯Direct
+  - GEOSITE,tld-cn,🎯Direct
+
+  # - GEOIP,CN,🎯Direct,no-resolve
+  # - RULE-SET,direct,🎯Direct
+
+  - MATCH,✈️Final

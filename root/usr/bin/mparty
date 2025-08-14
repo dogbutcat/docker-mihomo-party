@@ -1,0 +1,14 @@
+#!/bin/sh
+set -x
+
+# 定义可执行文件的路径
+APP_BIN="/usr/bin/mihomo-party"
+
+# export HOME=/mihomo-data/
+export XDG_CONFIG_HOME=/mihomo-data/
+
+if [ ! -d $XDG_CONFIG_HOME ]; then
+    mkdir -p $XDG_CONFIG_HOME
+fi
+
+sudo -E env XDG_CONFIG_HOME=$XDG_CONFIG_HOME $APP_BIN --no-sandbox

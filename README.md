@@ -1,6 +1,8 @@
-# Dockerfile Mihomo Party
+# Docker Mihomo Party
 
 based on [linuxserver/baseimage-kasmvnc:debianbookworm](https://github.com/linuxserver/docker-baseimage-kasmvnc) add xfce gui and mihomo-party, and startup mihomo-party with boot.
+
+remember to enable net.ipv4.ip_forward=1 in /etc/sysctl.conf
 
 ## CONFIG PATH
 
@@ -20,6 +22,7 @@ version: "3.9"
 services:
   mihomo-party:
     image: local/mihomo-party
+    # image: dogbutcat/mihomo-party
     container_name: mihomo-party
     restart: unless-stopped
     environment:
@@ -28,8 +31,6 @@ services:
       - USER=root
     ports:
       - "3000:3000"
-      - "5900:5900"
-      - "5902:5902"
     network_mode: host
     volumes:
       - home:/config

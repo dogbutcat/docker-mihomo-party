@@ -115,33 +115,33 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # 4. 创建版本号 manifest
-    - name: Create and push version manifest
+    # 4. 创建并推送 manifest
+    - name: Create and push manifest list
       run: |
-        docker manifest create ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} \
+        docker buildx imagetools create \
+          --tag ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} \
           ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-amd64 \
           ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-arm64
-        docker manifest push ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
 
     # 5. 创建 latest manifest (仅主分支)
     - name: Create and push latest manifest
       if: github.ref == 'refs/heads/main'
       run: |
-        docker manifest create ${{ env.IMAGE_NAME }}:latest \
+        docker buildx imagetools create \
+          --tag ${{ env.IMAGE_NAME }}:latest \
           ${{ env.IMAGE_NAME }}:latest-amd64 \
           ${{ env.IMAGE_NAME }}:latest-arm64
-        docker manifest push ${{ env.IMAGE_NAME }}:latest
 
     # 6. 输出最终信息
     - name: Output final info
       run: |
-        echo "🎉 Multi-architecture image created successfully!"
-        echo "📦 Version: ${{ steps.version.outputs.version }}"
-        echo "🏷️ Available tags:"
+        echo "Multi-architecture image created successfully!"
+        echo "Version: ${{ steps.version.outputs.version }}"
+        echo "Available tags:"
         echo "  - ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} (multi-arch)"
         if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
           echo "  - ${{ env.IMAGE_NAME }}:latest (multi-arch)"
         fi
         echo ""
-        echo "📥 Pull command:"
+        echo "Pull command:"
         echo "  docker pull ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}"

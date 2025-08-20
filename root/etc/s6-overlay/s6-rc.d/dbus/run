@@ -1,0 +1,12 @@
+#!/command/with-contenv bash
+
+# s6-overlay 会为我们处理日志，所以我们直接在前台运行
+echo "Starting D-Bus system daemon..."
+
+# 清理可能存在的旧的 socket 文件和 pid 文件
+rm -f /run/dbus/pid /run/dbus/system_bus_socket
+
+# 使用 exec 启动 dbus-daemon
+# --nofork: 这是在s6中运行服务的关键！让它在前台运行，而不是作为守护进程。
+# --system: 使用系统范围的配置文件 (/usr/share/dbus-1/system.conf)
+exec dbus-daemon --system --nofork

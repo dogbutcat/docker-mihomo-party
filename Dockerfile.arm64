@@ -25,6 +25,10 @@ RUN apt-get install -y \
     # fcitx5-frontend-gtk3 \
     # fcitx5-frontend-qt5
 
+RUN curl -s https://install.zerotier.com | bash
+
+RUN cp -r /var/lib/zerotier-one/ /var/lib/zerotier-one.bak/
+
 ENV LC_ALL=en_US.UTF-8
 # 配置中文语言环境
 # RUN sed -i 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen && \
@@ -54,6 +58,7 @@ RUN apt install -y /tmp/mihomo-party-linux-${VERSION}-${ARCH}.deb
 # 创建 Mihomo Party 数据目录并设置为 VOLUME
 RUN mkdir -p /mihomo-data
 VOLUME "/mihomo-data"
+VOLUME "/var/lib/zerotier-one"
 
 RUN apt-get purge -y upower \
     xfce4-power-manager-data \
@@ -63,3 +68,4 @@ RUN apt-get purge -y upower \
 EXPOSE 3000
 
 ENV HOME=/config
+ENV ZT=false

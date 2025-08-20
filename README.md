@@ -6,7 +6,7 @@ remember to enable net.ipv4.ip_forward=1 in /etc/sysctl.conf
 
 ## CONFIG PATH
 
-I'm using this as router, so I've decided make default running root user for TUN mode, also config path is `/mihomo-data/` with cmd `/usr/bin/mparty`.
+I'm using this as router, so I've decided make default running root user for TUN mode and add zerotier controled by environment variable `ZT`==true, also config path is `/mihomo-data/` with cmd `/usr/bin/mparty`.
 
 ## Build
 
@@ -29,12 +29,14 @@ services:
       - PUID=0
       - PGID=0
       - USER=root
+      # - ZT=true
     ports:
       - "3000:3000"
     network_mode: host
     volumes:
       - home:/config
       - "mihomo-data:/mihomo-data"
+      - "zerotier:/var/lib/zerotier-one"
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -45,4 +47,5 @@ services:
 volumes:
   - home
   - mihomo-data
+  - zerotier
 ```

@@ -1,0 +1,13 @@
+#!/command/with-contenv bash
+
+export XKL_XMODMAP_DISABLE=1
+export XDG_CURRENT_DESKTOP=XFCE
+export XDG_SESSION_DESKTOP=XFCE
+export XDG_SESSION_TYPE=x11
+
+
+pkill xfce4-power-manager 2>/dev/null || true
+
+cd "${HOME}"
+
+dbus-launch --sh-syntax --exit-with-session startxfce4

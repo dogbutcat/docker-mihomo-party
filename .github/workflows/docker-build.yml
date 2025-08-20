@@ -1,162 +1,57 @@
-name: Build Multi-Architecture Docker Images
+name: Build and Push Multi-Arch Docker Image
 
-# 触发条件
 on:
   push:
     branches: [ main, develop ]
-    paths: 
-      - 'VERSION'
-      - 'Dockerfile*'
-      - '.github/workflows/docker-build.yml'
     tags: [ 'v*' ]
-  pull_request:
-    branches: [ main ]
     paths:
       - 'VERSION'
-      - 'Dockerfile*'
+      - 'Dockerfile'
       - '.github/workflows/docker-build.yml'
 
 env:
   IMAGE_NAME: dogbutcat/mihomo-party
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
-    
+    # Don't run on PRs to avoid pushing images unnecessarily
+    if: github.event_name != 'pull_request'
     permissions:
       contents: read
       packages: write
-    
-    strategy:
-      matrix:
-        include:
-          - platform: linux/amd64
-            dockerfile: Dockerfile
-            arch: amd64
-          - platform: linux/arm64
-            dockerfile: Dockerfile.arm64
-            arch: arm64
 
     steps:
-    # 1. 检出代码
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # 2. 读取 VERSION 文件
-    - name: Read VERSION file
-      id: version
-      run: |
-        if [ -f VERSION ]; then
-          VERSION=$(cat VERSION | tr -d '\n\r' | xargs)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version from file: $VERSION"
-        else
-          echo "VERSION file not found"
-          exit 1
-        fi
-
-    # 3. 设置 Docker Buildx
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    # 4. 登录到 Docker Hub
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    # 5. 构建并推送单架构镜像
-    - name: Build and push ${{ matrix.arch }} image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ${{ matrix.dockerfile }}
-        platforms: ${{ matrix.platform }}
-        push: true
-        tags: |
-          ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-${{ matrix.arch }}
-          ${{ env.IMAGE_NAME }}:latest-${{ matrix.arch }}
-        build-args: |
-          VERSION=${{ steps.version.outputs.version }}
-        cache-from: type=gha,scope=${{ matrix.arch }}
-        cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
-
-    # 6. 输出构建信息
-    - name: Output build info for ${{ matrix.arch }}
-      run: |
-        echo "🐳 Built ${{ matrix.arch }} image successfully!"
-        echo "📦 Version: ${{ steps.version.outputs.version }}"
-        echo "🏗️ Platform: ${{ matrix.platform }}"
-        echo "📄 Dockerfile: ${{ matrix.dockerfile }}"
-
-  # 创建 manifest 合并多架构镜像
-  create-manifest:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    
-    steps:
-    # 1. 检出代码
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    # 2. 读取 VERSION 文件
     - name: Read VERSION file
       id: version
       run: |
         VERSION=$(cat VERSION | tr -d '\n\r' | xargs)
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    # 3. 登录到 Docker Hub
+    - name: Set up QEMU for multi-platform builds
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # 4. 存在旧的就删除旧的 manifest
-    - name: Clean up architecture-specific tags
-      run: |
-        VERSION=${{ steps.version.outputs.version }}
-        curl -L https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 > /usr/local/bin/regctl
-        chmod +x /usr/local/bin/regctl
-        echo "Cleaning up temporary tags for version ${VERSION}"
-        regctl tag delete ${{ env.IMAGE_NAME }}:${VERSION}-amd64
-        regctl tag delete ${{ env.IMAGE_NAME }}:${VERSION}-arm64
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-          echo "Cleaning up temporary latest tags"
-          regctl tag delete ${{ env.IMAGE_NAME }}:latest-amd64
-          regctl tag delete ${{ env.IMAGE_NAME }}:latest-arm64
-        fi
-
-    # 5. 创建并推送 manifest
-    - name: Create and push manifest list
-      run: |
-        docker buildx imagetools create \
-          --tag ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} \
-          ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-amd64 \
-          ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-arm64
-
-    # 6. 创建 latest manifest (仅主分支)
-    - name: Create and push latest manifest
-      if: github.ref == 'refs/heads/main'
-      run: |
-        docker buildx imagetools create \
-          --tag ${{ env.IMAGE_NAME }}:latest \
-          ${{ env.IMAGE_NAME }}:latest-amd64 \
-          ${{ env.IMAGE_NAME }}:latest-arm64
-
-    # 7. 输出最终信息
-    - name: Output final info
-      run: |
-        echo "Multi-architecture image created successfully!"
-        echo "Version: ${{ steps.version.outputs.version }}"
-        echo "Available tags:"
-        echo "  - ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} (multi-arch)"
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-          echo "  - ${{ env.IMAGE_NAME }}:latest (multi-arch)"
-        fi
-        echo ""
-        echo "Pull command:"
-        echo "  docker pull ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}"
+    - name: Build and push multi-architecture image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |
+          ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
+          ${{ github.ref == 'refs/heads/main' && format('{0}:latest', env.IMAGE_NAME) || '' }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max

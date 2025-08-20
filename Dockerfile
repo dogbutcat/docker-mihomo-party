@@ -42,10 +42,10 @@ ENV LC_ALL=en_US.UTF-8
 # RUN apt-get install -y libwebkit2gtk-4.0-37 libjavascriptcoregtk-4.0-18 libayatana-appindicator3-1
 
 ARG VERSION
-ENV ARCH=amd64
+ARG TARGETARCH
 
 # get Mihomo Party from git repo
-RUN wget -q -O - https://github.com/mihomo-party-org/mihomo-party/releases/download/v${VERSION}/mihomo-party-linux-${VERSION}-${ARCH}.deb -O /tmp/mihomo-party-linux-${VERSION}-${ARCH}.deb
+RUN wget -q -O - https://github.com/mihomo-party-org/mihomo-party/releases/download/v${VERSION}/mihomo-party-linux-${VERSION}-${TARGETARCH}.deb -O /tmp/mihomo-party-linux-${VERSION}-${TARGETARCH}.deb
 
 COPY root /
 COPY .Xauthority /config/.Xauthority
@@ -53,7 +53,7 @@ COPY .Xauthority /config/.Xauthority
 RUN chmod 644 /etc/xdg/autostart/mihomo-party.desktop
 
 # Install Mihomo Party.
-RUN apt install -y /tmp/mihomo-party-linux-${VERSION}-${ARCH}.deb
+RUN apt install -y /tmp/mihomo-party-linux-${VERSION}-${TARGETARCH}.deb
 
 # 创建 Mihomo Party 数据目录并设置为 VOLUME
 RUN mkdir -p /mihomo-data

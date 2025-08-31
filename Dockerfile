@@ -45,7 +45,7 @@ ARG VERSION
 ARG TARGETARCH
 
 # get Mihomo Party from git repo
-RUN wget -q -O - https://github.com/mihomo-party-org/mihomo-party/releases/download/v${VERSION}/mihomo-party-linux-${VERSION}-${TARGETARCH}.deb -O /tmp/mihomo-party-linux-${VERSION}-${TARGETARCH}.deb
+RUN wget -q -O - https://github.com/mihomo-party-org/clash-party/releases/download/v${VERSION}/clash-party-linux-${VERSION}-${TARGETARCH}.deb -O /tmp/mihomo-party-linux-${VERSION}-${TARGETARCH}.deb
 
 COPY root /
 COPY .Xauthority /config/.Xauthority

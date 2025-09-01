@@ -44,8 +44,8 @@ ENV LC_ALL=en_US.UTF-8
 ARG VERSION
 ARG TARGETARCH
 
-# get Mihomo Party from git repo
-RUN wget -q -O - https://github.com/mihomo-party-org/clash-party/releases/download/v${VERSION}/clash-party-linux-${VERSION}-${TARGETARCH}.deb -O /tmp/mihomo-party-linux-${VERSION}-${TARGETARCH}.deb
+# get Clash Party from git repo
+RUN wget -q -O - https://github.com/mihomo-party-org/clash-party/releases/download/v${VERSION}/clash-party-linux-${VERSION}-${TARGETARCH}.deb -O /tmp/clash-party-linux-${VERSION}-${TARGETARCH}.deb
 
 COPY root /
 COPY .Xauthority /config/.Xauthority
@@ -53,7 +53,7 @@ COPY .Xauthority /config/.Xauthority
 RUN chmod 644 /etc/xdg/autostart/mihomo-party.desktop
 
 # Install Mihomo Party.
-RUN apt install -y /tmp/mihomo-party-linux-${VERSION}-${TARGETARCH}.deb
+RUN apt install -y /tmp/clash-party-linux-${VERSION}-${TARGETARCH}.deb
 
 # 创建 Mihomo Party 数据目录并设置为 VOLUME
 RUN mkdir -p /mihomo-data

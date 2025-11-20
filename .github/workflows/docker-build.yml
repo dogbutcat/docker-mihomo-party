@@ -8,6 +8,7 @@ on:
       - 'VERSION'
       - 'Dockerfile'
       - '.github/workflows/docker-build.yml'
+      - 'root'
 
 env:
   IMAGE_NAME: dogbutcat/mihomo-party

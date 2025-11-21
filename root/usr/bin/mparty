@@ -6,6 +6,7 @@ APP_BIN="/usr/bin/clash-party"
 
 # export HOME=/mihomo-data/
 export XDG_CONFIG_HOME=/mihomo-data/
+export SAFE_PATHS=/mihomo-data/
 
 if [ ! -d $XDG_CONFIG_HOME ]; then
     mkdir -p $XDG_CONFIG_HOME

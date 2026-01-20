@@ -1,29 +1,38 @@
-FROM ghcr.io/linuxserver/baseimage-kasmvnc:debianbookworm
+FROM ghcr.io/linuxserver/baseimage-kasmvnc:ubuntunoble
 
 # 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 更新包列表并安装 XFCE 桌面环境
+# 1. Minimal XFCE4 Installation + Timezone
+# Use --no-install-recommends to avoid bloat/conflicting power managers
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     xfce4 \
     xfce4-terminal \
-    firefox-esr \
     dbus-x11 \
-    # sudo \
-    # curl \
+    x11-xserver-utils \
+    adwaita-icon-theme-full \
     wget \
-    vim 
-
-RUN apt-get install -y \
+    vim \
+    tzdata \
     fonts-wqy-microhei \
-    fonts-wqy-zenhei 
-    # fonts-noto-cjk \
-    # locales \
-    # fcitx5 \
-    # fcitx5-chinese-addons \
-    # fcitx5-frontend-gtk3 \
-    # fcitx5-frontend-qt5
+    fonts-wqy-zenhei && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get install -y --no-install-recommends ca-certificates && \
+    install -d -m 0755 /etc/apt/keyrings && \
+    wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null && \
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null && \
+    echo 'Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000' | tee /etc/apt/preferences.d/mozilla && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends firefox
+
+# 2. Explicitly remove conflicting power management tools if installed
+RUN apt-get purge -y upower xfce4-power-manager || true
+
+# 3. KasmVNC & GPU Hang Fixes (Mac Docker Compatibility)
+ENV LIBGL_ALWAYS_SOFTWARE=1
 
 RUN curl -s https://install.zerotier.com | bash
 
@@ -33,10 +42,6 @@ ENV LC_ALL=en_US.UTF-8
 # 配置中文语言环境
 # RUN sed -i 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen && \
 #     locale-gen zh_CN.UTF-8
-
-# RUN apt-get install -y \
-#     iproute2 \
-#     iptables
 
 # Additional deps for clash-verge
 # RUN apt-get install -y libwebkit2gtk-4.0-37 libjavascriptcoregtk-4.0-18 libayatana-appindicator3-1
@@ -53,16 +58,13 @@ COPY .Xauthority /config/.Xauthority
 RUN chmod 644 /etc/xdg/autostart/mihomo-party.desktop
 
 # Install Mihomo Party.
-RUN apt install -y /tmp/clash-party-linux-${VERSION}-${TARGETARCH}.deb
+RUN apt-get install -y /tmp/clash-party-linux-${VERSION}-${TARGETARCH}.deb \
+    && rm /tmp/clash-party-linux-${VERSION}-${TARGETARCH}.deb
 
 # 创建 Mihomo Party 数据目录并设置为 VOLUME
 RUN mkdir -p /mihomo-data
 VOLUME "/mihomo-data"
 VOLUME "/var/lib/zerotier-one"
-
-RUN apt-get purge -y upower \
-    xfce4-power-manager-data \
-    && apt-get clean
 
 # 暴露端口（继承自基础镜像）
 EXPOSE 3000

@@ -1,12 +1,15 @@
 # Docker Mihomo Party
 
-based on [linuxserver/baseimage-kasmvnc:debianbookworm](https://github.com/linuxserver/docker-baseimage-kasmvnc) add xfce gui and mihomo-party, and startup mihomo-party with boot.
+基于 [dogbutcat/kasmvnc:ubuntunoble](https://github.com/dogbutcat/docker-kasmvnc) 基础镜像，添加 Mihomo Party 并设置开机自启。
 
-remember to enable net.ipv4.ip_forward=1 in /etc/sysctl.conf
+> 使用 TUN 模式需要在宿主机启用 `net.ipv4.ip_forward=1`（写入 `/etc/sysctl.conf`）
 
-## CONFIG PATH
+## 配置说明
 
-I'm using this as router, so I've decided make default running root user for TUN mode and add zerotier controled by environment variable `ZT`==true, also config path is `/mihomo-data/` with cmd `/usr/bin/mparty`.
+- 以 root 用户运行（支持 TUN 模式）
+- 数据目录：`/mihomo-data/`
+- 启动脚本：`/usr/bin/mparty`
+- 可选 ZeroTier：环境变量 `ZT=true` 开启
 
 ## Build
 
@@ -35,8 +38,8 @@ services:
     network_mode: host
     volumes:
       - home:/config
-      - "mihomo-data:/mihomo-data"
-      - "zerotier:/var/lib/zerotier-one"
+      - mihomo-data:/mihomo-data
+      - zerotier:/var/lib/zerotier-one
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -45,7 +48,7 @@ services:
     shm_size: "1gb"
 
 volumes:
-  - home
-  - mihomo-data
-  - zerotier
+  home:
+  mihomo-data:
+  zerotier:
 ```

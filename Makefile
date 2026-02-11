@@ -1,15 +1,31 @@
-# CUR_PATH := $(shell pwd)
 VERSION := $(shell cat VERSION)
-TARGETARCH ?= amd64
+PLATFORM ?= linux/amd64
 IMAGE_NAME := docker-clash-party
+REMOTE_IMAGE := dogbutcat/mihomo-party
 CONTAINER_NAME := test_clash_party
 
+HTTP_PORT ?= 3000
+
 build: stop
-# 	docker buildx build --platform linux/amd64 --build-arg VERSION=$(VERSION) --build-arg TARGETARCH=$(TARGETARCH) -t $(IMAGE_NAME) .
-	docker build --rm \
+	docker buildx build --platform $(PLATFORM) \
 		--build-arg VERSION=$(VERSION) \
-		--build-arg TARGETARCH=$(TARGETARCH) \
-		-t $(IMAGE_NAME) .
+		-t $(IMAGE_NAME) --load .
+
+push:
+	docker buildx build --platform linux/amd64 \
+		--build-arg VERSION=$(VERSION) \
+		-t $(REMOTE_IMAGE):$(VERSION)-amd64 --push .
+	docker buildx build --platform linux/arm64 \
+		--build-arg VERSION=$(VERSION) \
+		-t $(REMOTE_IMAGE):$(VERSION)-arm64 --push .
+	docker manifest create $(REMOTE_IMAGE):$(VERSION) \
+		$(REMOTE_IMAGE):$(VERSION)-amd64 \
+		$(REMOTE_IMAGE):$(VERSION)-arm64
+	docker manifest push $(REMOTE_IMAGE):$(VERSION)
+	docker manifest create $(REMOTE_IMAGE):latest \
+		$(REMOTE_IMAGE):$(VERSION)-amd64 \
+		$(REMOTE_IMAGE):$(VERSION)-arm64
+	docker manifest push $(REMOTE_IMAGE):latest
 
 stop:
 	@if [ "$$(docker ps -a --format '{{.Names}}' | grep $(CONTAINER_NAME))" = "$(CONTAINER_NAME)" ]; then \
@@ -19,19 +35,23 @@ stop:
 test: build
 	docker run --rm \
 		-d --name $(CONTAINER_NAME) \
-		-e PUID=1000 \
-		-e PGID=1000 \
+		-e PUID=0 \
+		-e PGID=0 \
+		-e USER=root \
 		-e TZ=Asia/Shanghai \
-		-p 3000:3000 \
-		-p 6901:6901 \
-		-p 7890:7890 \
+		-e CUSTOM_PORT=$(HTTP_PORT) \
+		-p $(HTTP_PORT):$(HTTP_PORT) \
+		--cap-add NET_ADMIN \
+		--cap-add SYS_MODULE \
+		--device /dev/net/tun:/dev/net/tun \
+		--shm-size 1g \
 		$(IMAGE_NAME)
 
 run: test
 	@echo "Container $(CONTAINER_NAME) started."
-	@echo "Access KasmVNC at http://localhost:3000"
+	@echo "Access KasmVNC at http://localhost:$(HTTP_PORT)"
 
 logs:
 	docker logs -f $(CONTAINER_NAME)
 
-.PHONY: build stop test run logs
+.PHONY: build push stop test run logs

@@ -1,0 +1,3 @@
+#!/command/with-contenv bash
+if [ "${WARP}" != "true" ]; then exec sleep infinity; fi
+exec /usr/bin/warp-svc

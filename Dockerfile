@@ -110,3 +110,6 @@ ENV WARP_EMERGENCY_SIGNAL_INTERVAL=
 # === 网关模式 ===
 ENV GATEWAY_MODE=false
 ENV GATEWAY_ROUTES=
+
+# === 路由修复 (Clash Tun + WARP/ZeroTier 共存) ===
+ENV ROUTING_MARK=6666

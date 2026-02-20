@@ -2,7 +2,7 @@ VERSION := $(shell cat VERSION)
 PLATFORM ?= linux/amd64
 GOST_VERSION ?= 3.2.6
 IMAGE_NAME := docker-clash-party
-REMOTE_IMAGE := dogbutcat/mihomo-party
+REMOTE_IMAGE := ghcr.io/dogbutcat/mihomo-party
 CONTAINER_NAME := test_clash_party
 
 HTTP_PORT ?= 3000

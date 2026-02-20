@@ -26,7 +26,7 @@ version: "3.9"
 services:
   mihomo-party:
     image: local/mihomo-party
-    # image: dogbutcat/mihomo-party
+    # image: ghcr.io/dogbutcat/mihomo-party
     container_name: mihomo-party
     restart: unless-stopped
     environment:

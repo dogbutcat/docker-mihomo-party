@@ -18,7 +18,7 @@ if [ "$WARP_IP_SELECTION_ENABLED" = "true" ] && [ -z "$WARP_OVERRIDE_WARP_ENDPOI
   BEST_TUNNEL_ENDPOINT="$(warp-speed-test.sh --tunnel 2>/dev/null || true)"
   BEST_TUNNEL_ENDPOINT="$(echo "${BEST_TUNNEL_ENDPOINT}" | tr -d '[:space:]')"
   if [ -n "$BEST_TUNNEL_ENDPOINT" ]; then
-    echo "$BEST_TUNNEL_ENDPOINT" > /var/run/s6/container_environment/WARP_OVERRIDE_WARP_ENDPOINT
+    printf '%s' "$BEST_TUNNEL_ENDPOINT" > /var/run/s6/container_environment/WARP_OVERRIDE_WARP_ENDPOINT
     echo "[ip-selection] Tunnel endpoint selected: ${BEST_TUNNEL_ENDPOINT}"
   else
     echo "[ip-selection] Tunnel selection soft-failed, keep default endpoint"
@@ -31,7 +31,7 @@ if [ "$WARP_API_SELECTION_ENABLED" = "true" ] && [ -z "$WARP_OVERRIDE_API_ENDPOI
   BEST_API_ENDPOINT="$(warp-speed-test.sh --api 2>/dev/null || true)"
   BEST_API_ENDPOINT="$(echo "${BEST_API_ENDPOINT}" | tr -d '[:space:]')"
   if [ -n "$BEST_API_ENDPOINT" ]; then
-    echo "$BEST_API_ENDPOINT" > /var/run/s6/container_environment/WARP_OVERRIDE_API_ENDPOINT
+    printf '%s' "$BEST_API_ENDPOINT" > /var/run/s6/container_environment/WARP_OVERRIDE_API_ENDPOINT
     echo "[ip-selection] API endpoint selected: ${BEST_API_ENDPOINT}"
   else
     echo "[ip-selection] API selection soft-failed, keep default endpoint"

@@ -40,6 +40,9 @@ services:
       # - WARP_MODE=proxy
       # - PROXY_TYPE=socks5
       # - PROXY_PORT=1080
+      # --- IP 优选 (可选) ---
+      # - WARP_IP_SELECTION_ENABLED=true
+      # - WARP_API_SELECTION_ENABLED=true
     ports:
       - "3000:3000"
       # - "1080:1080"    # gost SOCKS5 (WARP=true 时)
@@ -88,7 +91,30 @@ volumes:
 | `WARP_AUTH_CLIENT_ID` | (空) | Service Token Client ID |
 | `WARP_AUTH_CLIENT_SECRET` | (空) | Service Token Client Secret |
 | `WARP_SERVICE_MODE` | (空) | MDM 服务模式 |
+| `WARP_TUNNEL_PROTOCOL` | `masque` | 隧道协议：`masque` / `wireguard` |
 | `GATEWAY_MODE` | `false` | 网关模式主开关 |
 | `GATEWAY_ROUTES` | (空) | 路由到 WARP 隧道的目标网段，逗号分隔 |
 
-完整 MDM/高级变量请参考 `.env.example`。
+### Endpoint 覆盖
+
+手动指定端点 IP，跳过优选直接使用。适用于中国网络伙伴等特殊场景。
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `WARP_OVERRIDE_WARP_ENDPOINT` | (空) | 覆盖 WARP 隧道端点 IP:Port |
+| `WARP_OVERRIDE_API_ENDPOINT` | (空) | 覆盖 API 端点 IP |
+| `WARP_OVERRIDE_DOH_ENDPOINT` | (空) | 覆盖 DoH 端点 IP |
+
+### Endpoint 优选 (IP Selection)
+
+自动探测最快端点并写入 MDM 配置。启用后在容器启动时自动运行。
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `WARP_IP_SELECTION_ENABLED` | `false` | 启用隧道端点优选（Consumer/WireGuard/Masque 自动选择） |
+| `WARP_API_SELECTION_ENABLED` | `false` | 启用 API 端点优选（jdcloud 节点） |
+| `WARP_IPV6_SELECTION` | `false` | 是否包含 IPv6 端点进行优选 |
+| `WARP_PROBE_CONCURRENCY` | `200` | 并发探测数量（降低可减少资源消耗） |
+| `WARP_LOG_LEVEL` | `info` | 优选日志级别：`debug` / `info` / `warn` / `error` |
+
+完整变量及注释请参考 `.env.example`。

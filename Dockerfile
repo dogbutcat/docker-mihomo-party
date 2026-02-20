@@ -1,3 +1,11 @@
+# ========== Stage 1: Go builder for warp-endpoint-probe ==========
+FROM golang:1.24-alpine AS warp-probe-builder
+ARG TARGETARCH
+COPY warp-endpoint-probe/ /src/
+WORKDIR /src
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -ldflags="-s -w" -o /warp-endpoint-probe .
+
+# ========== Stage 2: Main image ==========
 FROM dogbutcat/kasmvnc:ubuntunoble
 
 # ZeroTier
@@ -40,6 +48,11 @@ RUN set -eux; \
 # 下载 Clash Party deb 包
 RUN wget -q -O /tmp/clash-party-linux-${VERSION}-${TARGETARCH}.deb \
     https://github.com/mihomo-party-org/clash-party/releases/download/v${VERSION}/clash-party-linux-${VERSION}-${TARGETARCH}.deb
+
+# ---------- warp-endpoint-probe (from Go builder) ----------
+COPY --from=warp-probe-builder /warp-endpoint-probe /usr/local/bin/warp-endpoint-probe
+COPY warp-speed-test.sh /usr/local/bin/warp-speed-test.sh
+RUN chmod +x /usr/local/bin/warp-endpoint-probe /usr/local/bin/warp-speed-test.sh
 
 COPY root /
 COPY .Xauthority /config/.Xauthority
@@ -90,7 +103,7 @@ ENV WARP_ORG=
 ENV WARP_AUTH_CLIENT_ID=
 ENV WARP_AUTH_CLIENT_SECRET=
 ENV WARP_SERVICE_MODE=
-ENV WARP_TUNNEL_PROTOCOL=
+ENV WARP_TUNNEL_PROTOCOL=masque
 ENV WARP_SWITCH_LOCKED=
 ENV WARP_AUTO_CONNECT=
 ENV WARP_ONBOARDING=
@@ -106,6 +119,13 @@ ENV WARP_OVERRIDE_WARP_ENDPOINT=
 ENV WARP_EMERGENCY_SIGNAL_URL=
 ENV WARP_EMERGENCY_SIGNAL_FINGERPRINT=
 ENV WARP_EMERGENCY_SIGNAL_INTERVAL=
+
+# === IP 优选 ===
+ENV WARP_IP_SELECTION_ENABLED=false
+ENV WARP_API_SELECTION_ENABLED=false
+ENV WARP_IPV6_SELECTION=false
+ENV WARP_LOG_LEVEL=info
+ENV WARP_PROBE_CONCURRENCY=200
 
 # === 网关模式 ===
 ENV GATEWAY_MODE=false

@@ -1,4 +1,6 @@
 VERSION := $(shell cat VERSION)
+SUB_VERSION := $(shell cat SUB_VERSION)
+IMAGE_TAG := $(VERSION).$(SUB_VERSION)
 PLATFORM ?= linux/amd64
 GOST_VERSION ?= 3.2.6
 IMAGE_NAME := docker-clash-party
@@ -11,24 +13,24 @@ build: stop
 	docker buildx build --platform $(PLATFORM) \
 		--build-arg VERSION=$(VERSION) \
 		--build-arg GOST_VERSION=$(GOST_VERSION) \
-		-t $(IMAGE_NAME) --load .
+		-t $(IMAGE_NAME):$(IMAGE_TAG) --load .
 
 push:
 	docker buildx build --platform linux/amd64 \
 		--build-arg VERSION=$(VERSION) \
 		--build-arg GOST_VERSION=$(GOST_VERSION) \
-		-t $(REMOTE_IMAGE):$(VERSION)-amd64 --push .
+		-t $(REMOTE_IMAGE):$(IMAGE_TAG)-amd64 --push .
 	docker buildx build --platform linux/arm64 \
 		--build-arg VERSION=$(VERSION) \
 		--build-arg GOST_VERSION=$(GOST_VERSION) \
-		-t $(REMOTE_IMAGE):$(VERSION)-arm64 --push .
-	docker manifest create $(REMOTE_IMAGE):$(VERSION) \
-		$(REMOTE_IMAGE):$(VERSION)-amd64 \
-		$(REMOTE_IMAGE):$(VERSION)-arm64
-	docker manifest push $(REMOTE_IMAGE):$(VERSION)
+		-t $(REMOTE_IMAGE):$(IMAGE_TAG)-arm64 --push .
+	docker manifest create $(REMOTE_IMAGE):$(IMAGE_TAG) \
+		$(REMOTE_IMAGE):$(IMAGE_TAG)-amd64 \
+		$(REMOTE_IMAGE):$(IMAGE_TAG)-arm64
+	docker manifest push $(REMOTE_IMAGE):$(IMAGE_TAG)
 	docker manifest create $(REMOTE_IMAGE):latest \
-		$(REMOTE_IMAGE):$(VERSION)-amd64 \
-		$(REMOTE_IMAGE):$(VERSION)-arm64
+		$(REMOTE_IMAGE):$(IMAGE_TAG)-amd64 \
+		$(REMOTE_IMAGE):$(IMAGE_TAG)-arm64
 	docker manifest push $(REMOTE_IMAGE):latest
 
 stop:
@@ -59,7 +61,7 @@ logs:
 	docker logs -f $(CONTAINER_NAME)
 
 # ========== IP 优选测试 (docker run --rm, 无残留) ==========
-TEST_IMAGE := $(IMAGE_NAME):test
+TEST_IMAGE := $(IMAGE_NAME):$(IMAGE_TAG)-test
 
 test-build: stop
 	docker buildx build --platform $(PLATFORM) \

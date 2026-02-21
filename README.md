@@ -111,11 +111,13 @@ volumes:
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| `WARP_IP_SELECTION_ENABLED` | `false` | 启用隧道端点优选（Consumer/WireGuard/Masque 自动选择） |
-| `WARP_API_SELECTION_ENABLED` | `false` | 启用 API 端点优选（jdcloud 节点） |
-| `WARP_IPV6_SELECTION` | `false` | 是否包含 IPv6 端点进行优选 |
-| `WARP_PROBE_TIMEOUT` | `10s` | 优选总最大超时时间 |
+| `WARP_IP_SELECTION_ENABLED` | `false` | 是否开启隧道 Endpoint 优选 (测速挑选最快 IP) |
+| `WARP_API_SELECTION_ENABLED` | `false` | 是否开启 API Endpoint 优选 (测速挑选最快节点，仅 MDM 有效) |
+| `WARP_IPV6_SELECTION` | `false` | 优选时是否包含 IPv6 地址 |
+| `WARP_PROBE_TIMEOUT` | `30s` | 优选总最大超时时间 |
 | `WARP_PROBE_CONCURRENCY` | `400` | 并发探测数量 (降低可减少资源消耗) |
+| `WARP_PROBE_ROUNDS` | `3` | 每个 Endpoint 探测轮数并取平均值，提升稳定性 |
+| `WARP_PROBE_SAMPLE` | `0` | 每个 CIDR 采样 IP 数量 (设为 5 可快速预筛) |
 | `WARP_LOG_LEVEL` | `info` | 优选日志级别：`debug` / `info` / `warn` / `error` |
 
 完整变量及注释请参考 `.env.example`。

@@ -6,6 +6,7 @@ on:
     tags: [ 'v*' ]
     paths:
       - 'VERSION'
+      - 'SUB_VERSION'
       - 'Dockerfile'
       - '.github/workflows/container-build.yml'
       - 'root/**'
@@ -29,11 +30,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Read VERSION file
+    - name: Read VERSION and SUB_VERSION file
       id: version
       run: |
         VERSION=$(cat VERSION | tr -d '\n\r' | xargs)
+        SUB_VERSION=$(cat SUB_VERSION | tr -d '\n\r' | xargs)
         echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "image_tag=$VERSION.$SUB_VERSION" >> $GITHUB_OUTPUT
 
     - name: Set up QEMU for multi-platform builds
       uses: docker/setup-qemu-action@v3
@@ -58,7 +61,7 @@ jobs:
         build-args: |
           VERSION=${{ steps.version.outputs.version }}
         tags: |
-          ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}-warp
+          ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.image_tag }}
           ${{ github.ref == 'refs/heads/main' && format('{0}:latest', env.IMAGE_NAME) || '' }}
         cache-from: type=gha
         cache-to: type=gha,mode=max

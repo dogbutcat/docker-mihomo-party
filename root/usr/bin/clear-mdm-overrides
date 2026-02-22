@@ -1,0 +1,22 @@
+#!/command/with-contenv bash
+# clear-mdm-overrides: 手动清除 /var/lib/cloudflare-warp/mdm.xml 中的 override_ 节点
+set -euo pipefail
+
+MDM_FILE="/var/lib/cloudflare-warp/mdm.xml"
+
+if [ ! -f "$MDM_FILE" ]; then
+  echo "MDM configuration file not found at $MDM_FILE"
+  exit 0
+fi
+
+echo "Removing override endpoints from $MDM_FILE..."
+
+awk '
+  /<key>/ && (/override_warp_endpoint/ || /override_api_endpoint/ || /override_doh_endpoint/) { found=1; next }
+  found && /<string>/ { found=0; next }
+  { print }
+' "$MDM_FILE" > "${MDM_FILE}.tmp" && mv "${MDM_FILE}.tmp" "$MDM_FILE"
+
+echo "Done. Override endpoints removed from mdm.xml"
+echo "If you want to apply the changes immediately, you can restart the warp service:"
+echo "  s6-rc -d change svc-warp && s6-rc -u change svc-warp"

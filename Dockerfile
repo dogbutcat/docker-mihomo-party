@@ -60,7 +60,7 @@ COPY .Xauthority /config/.Xauthority
 RUN chmod 644 /etc/xdg/autostart/mihomo-party.desktop
 
 # ---------- WARP 脚本权限 ----------
-RUN chmod +x /usr/bin/generate-mdm-xml /usr/bin/restart-gost && \
+RUN chmod +x /usr/bin/generate-mdm-xml /usr/bin/restart-gost /usr/bin/clear-mdm-overrides && \
     find /etc/s6-overlay/s6-rc.d -name "run" -exec chmod +x {} \;
 
 # ---------- 禁用基础镜像自带的 DinD ----------

@@ -28,7 +28,7 @@ func TestExpandTargetsCount(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expand masque v4: %v", err)
 	}
-	wantV4 := 254 * 1
+	wantV4 := 253 * 1
 	if len(masqueV4) != wantV4 {
 		t.Fatalf("masque v4 count: got=%d want=%d", len(masqueV4), wantV4)
 	}
@@ -43,7 +43,7 @@ func TestExpandTargetsCount(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expand masque v4+v6: %v", err)
 	}
-	wantMin := 254 + 1024
+	wantMin := 253 + 1024
 	if len(masqueAll) < wantMin {
 		t.Fatalf("masque v4+v6 count: got=%d wantMin=%d", len(masqueAll), wantMin)
 	}

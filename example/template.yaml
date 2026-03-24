@@ -25,9 +25,6 @@ geo-update-interval: 24
 
 etag-support: true
 global-ua: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
-# [mihomo.yaml] sniffer 配置需同步到实际运行的 mihomo 配置文件中
-# override-destination 必须关闭，否则会破坏容器内 WARP 隧道连接
-# （fake-ip 模式下 sniffing 已足够提供域名信息用于规则匹配，无需 override）
 sniffer:
   sniff:
     TLS: {ports: [1-65535], override-destination: true}
@@ -36,9 +33,6 @@ sniffer:
   skip-domain:
     - Mijia Cloud
     - dlg.io.mi.com
-    - +.cloudflareclient.com      # WARP API / MASQUE 隧道
-    - +.cloudflare-gateway.com    # Zero Trust Gateway
-    - +.cftunnel.com              # WARP tunnel 备用
   parse-pure-ip: false
   force-dns-mapping: true
   override-destination: true
@@ -141,10 +135,7 @@ dns:
     - www.bilibili.com
     - api.bilibili.com
     - a.w.bilicdn1.com
-    # Cloudflare WARP — 确保 warp-svc 拿到真实 IP，不走 fake-ip
-    - +.cloudflareclient.com
-    - +.cloudflare-gateway.com
-    - +.cftunnel.com
+
 
 x-pg-common: &pg-common
     url: http://www.gstatic.com/generate_204

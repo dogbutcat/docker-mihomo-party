@@ -1,5 +1,0 @@
-#!/command/with-contenv bash
-# 门控：WARP 未启用则跳过
-if [ "${WARP}" != "true" ]; then exit 0; fi
-
-exec /usr/bin/generate-mdm-xml
